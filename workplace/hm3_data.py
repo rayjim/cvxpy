@@ -1,4 +1,6 @@
 from scipy import linalg, matrix
+
+
 def nullspace(A, atol=1e-13, rtol=0):
      A = np.atleast_2d(A)
      u, s, vh = svd(A)
@@ -19,20 +21,20 @@ V11 = [0.0, 0.1, 0.15, 0.2, 0.1, 0.2, 0.3, 0.0, 0.0, 0.0,0.1, 0.2,
 V2 = matrix(map(lambda x: x*0.4,V11))
 V1 = matrix(linspace(0,1,21))
 V = vstack([V1,V2])
-n = V.shape[1]
+n = V.shape[1]-1
 plot(array(a1.T),array(a2.T),'o',array(V1.T),array(V2.T),"-")
 
 dV = V[:,1:n]-V[:,0:n-1]
 VI=V[:,0:n-1]+0.5*dV
 A=zeros((n,m))
-A[20,:] = 0.001*ones((1,10))
+#A[20,:] = 0.001*ones((1,10))
 for i in range(n-1):
-    for j in range(m):
+    for j in range(m-1):
         dVI=L[:,j]-VI[:,i]
         dVperp = nullspace(dV[:,i].T)
         if dVperp[1]<0:
             dVperp=-dVperp
-        A[i,j]=max(0,dVI.T*dVperp/(norm(dVI)*norm(dVperp)))
+        A[i,j]=max([0,dVI.T*dVperp/(norm(dVI)*norm(dVperp))])/(norm(dVI)*norm(dVI))
         
 #solution 1
 nopts = 1000

@@ -25,6 +25,7 @@ plot(array(a1.T),array(a2.T),'o',array(V1.T),array(V2.T),"-")
 dV = V[:,1:n]-V[:,0:n-1]
 VI=V[:,0:n-1]+0.5*dV
 A=zeros((n,m))
+A[20,:] = 0.001*ones((1,10))
 for i in range(n-1):
     for j in range(m):
         dVI=L[:,j]-VI[:,i]
@@ -32,3 +33,13 @@ for i in range(n-1):
         if dVperp[1]<0:
             dVperp=-dVperp
         A[i,j]=max(0,dVI.T*dVperp/(norm(dVI)*norm(dVperp)))
+        
+#solution 1
+nopts = 1000
+p=logspace(-3,0,nopts)
+f=zeros(p.size)
+for k in range(nopts):
+    f[k] = max(abs(log(A*matrix((p[k]*ones((m,1)))))))
+
+print min(f)
+print p[argmin(f)]

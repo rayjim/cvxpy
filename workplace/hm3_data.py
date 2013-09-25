@@ -57,23 +57,50 @@ print p_ls_sat
 val_ls_sat = np.max(np.abs(log(A*matrix(p_ls_sat))))
 print val_ls_sat
 
-#solution 3 regularized least squares
+#solution 3 regularizepd least squares
 
 
 rohs = linspace(1e-3,1,nopts)
 crit = []
 
 for i in range(nopts):
-    A2 = vstack([A,rohs[i]*identity(m)])
+    A2 = vstack([A,sqrt(rohs[i])*identity(m)])
     b2  = vstack([ones((n,1)),sqrt(rohs[i])*0.5*ones((m,1))])
     p1 = np.linalg.lstsq(A2, b2)[0]
     crit.append(norm(p1-0.5*ones((m,1)),inf))
 crit=array(crit)
 idx = find(crit<=0.500)
+#rohs = rohs[idx[0]]
 rohs = rohs[idx[0]]
-A3 = vstack([A,identity(m)*rohs])
+A3 = vstack([A,identity(m)*sqrt(rohs)])
 b3  = vstack([ones((n,1)),sqrt(rohs)*0.5*ones((m,1))])
 p_ls_reg = np.linalg.lstsq(A3, b3)[0]
 val_ls_reg = np.max(np.abs(log(A*matrix(p_ls_reg))))
 print p_ls_reg
 print val_ls_reg
+
+
+#solution 4 chebyshev approximation
+from cvxpy import Minimize, normInf
+x=Variable (m,1)
+objective = Minimize(normInf(matrix(A)*x-ones((n,1))))
+constraints =[x>=0,x<=1]
+pro = Problem(objective, constraints) 
+result = pro.solve()
+print x.value
+val_ls_chev = np.max(np.abs(log(A*matrix(x.value))))
+print val_ls_chev
+
+#solution 5 cvxpy
+
+from cvxpy import max
+y=Variable (m,1)
+Am = matrix(A)
+qq = [max(Am[i,:]*y,inv_pos(Am[i,:]*y)) for i in range(n)]
+objective1 = Minimize(max(*qq))
+constraints1 =[y>=0,y<=1]
+pro1 = Problem(objective1, constraints1) 
+result1 = pro1.solve()
+print y.value
+val_ls_cvx = np.max(np.abs(log(A*matrix(y.value))))
+print val_ls_cvx

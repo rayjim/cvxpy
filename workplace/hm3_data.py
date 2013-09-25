@@ -1,5 +1,6 @@
 from scipy import linalg, matrix
-
+from numpy import *
+from cvxopt import matrix
 
 def nullspace(A, atol=1e-13, rtol=0):
      A = np.atleast_2d(A)
@@ -36,3 +37,42 @@ for i in range(n):
             dVperp=-dVperp
         A[i,j]=max([0,dVI.T*dVperp/(norm(dVI)*norm(dVperp))])/(norm(dVI)*norm(dVI))
         
+#solution 1
+nopts = 1000
+p=logspace(-3,0,nopts)
+f=zeros(p.size)
+for k in range(nopts):
+    f[k] = max(abs(log(A*matrix((p[k]*ones((m,1)))))))
+
+print min(f)
+print p[argmin(f)]
+
+#solution 2 least square
+b = ones((n,1))
+p_ls_sat = np.linalg.lstsq(A, b)[0]
+p_ls_sat = np.minimum(p_ls_sat,ones((m,1)))
+p_ls_sat = np.maximum(p_ls_sat,zeros((m,1)))
+#print p_ls_sat
+val_ls_sat = max(abs(log(A*matrix(p_ls_sat))))
+#print val_ls_sat
+
+#solution 3 regularized least squares
+
+
+rohs = linspace(1e-3,1,nopts)
+crit = []
+
+for i in range(nopts):
+    A2 = vstack([A,rohs[i]*identity(m)])
+    b2  = vstack([ones((n,1)),sqrt(rohs[i])*0.5*ones((m,1))])
+    p1 = np.linalg.lstsq(A2, b2)[0]
+    crit.append(norm(p1-0.5*ones((m,1)),inf))
+crit=array(crit)
+idx = find(crit<=0.500)
+rohs = rohs[idx[0]]
+A3 = vstack([A,identity(m)*rohs])
+b3  = vstack([ones((n,1)),sqrt(rohs)*0.5*ones((m,1))])
+p_ls_reg = np.linalg.lstsq(A3, b3)[0]
+val_ls_reg = max(abs(log(A*matrix(p_ls_reg))))
+print p_ls_reg
+print val_ls_reg

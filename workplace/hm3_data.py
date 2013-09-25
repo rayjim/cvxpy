@@ -104,3 +104,17 @@ result1 = pro1.solve()
 print y.value
 val_ls_cvx = np.max(np.abs(log(A*matrix(y.value))))
 print val_ls_cvx
+
+#solution 6 cvxpy equvelent
+
+z=Variable (m,1)
+u = Variable(1)
+qq = [(max(Am[i,:]*z,inv_pos(Am[i,:]*z))<=u) for i in range(n)]
+objective2 = Minimize(u)
+pp =[z>=0,z<=1]
+constraints2 = pp+qq
+pro2 = Problem(objective2, constraints2) 
+result1 = pro2.solve()
+print z.value
+val_ls_cvx = np.max(np.abs(log(A*matrix(z.value))))
+print val_ls_cvx

@@ -1,6 +1,7 @@
 from scipy import linalg, matrix
 from numpy import *
-from cvxopt import matrix
+
+
 
 def nullspace(A, atol=1e-13, rtol=0):
      A = np.atleast_2d(A)
@@ -35,16 +36,16 @@ for i in range(n):
         dVperp = nullspace(dV[:,i].T)
         if dVperp[1]<0:
             dVperp=-dVperp
-        A[i,j]=max([0,dVI.T*dVperp/(norm(dVI)*norm(dVperp))])/(norm(dVI)*norm(dVI))
+        A[i,j]=np.max([0,dVI.T*dVperp/(norm(dVI)*norm(dVperp))])/(norm(dVI)*norm(dVI))
         
 #solution 1
 nopts = 1000
 p=logspace(-3,0,nopts)
 f=zeros(p.size)
 for k in range(nopts):
-    f[k] = max(abs(log(A*matrix((p[k]*ones((m,1)))))))
+    f[k] = np.max(np.abs(log(A*matrix((p[k]*ones((m,1)))))))
 
-print min(f)
+print np.min(f)
 print p[argmin(f)]
 
 #solution 2 least square
@@ -52,9 +53,9 @@ b = ones((n,1))
 p_ls_sat = np.linalg.lstsq(A, b)[0]
 p_ls_sat = np.minimum(p_ls_sat,ones((m,1)))
 p_ls_sat = np.maximum(p_ls_sat,zeros((m,1)))
-#print p_ls_sat
-val_ls_sat = max(abs(log(A*matrix(p_ls_sat))))
-#print val_ls_sat
+print p_ls_sat
+val_ls_sat = np.max(np.abs(log(A*matrix(p_ls_sat))))
+print val_ls_sat
 
 #solution 3 regularized least squares
 
@@ -73,6 +74,6 @@ rohs = rohs[idx[0]]
 A3 = vstack([A,identity(m)*rohs])
 b3  = vstack([ones((n,1)),sqrt(rohs)*0.5*ones((m,1))])
 p_ls_reg = np.linalg.lstsq(A3, b3)[0]
-val_ls_reg = max(abs(log(A*matrix(p_ls_reg))))
+val_ls_reg = np.max(np.abs(log(A*matrix(p_ls_reg))))
 print p_ls_reg
 print val_ls_reg

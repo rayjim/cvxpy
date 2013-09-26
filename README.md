@@ -1,0 +1,1 @@
+In general, object identification can be classified as image matching problems, in which objects within a query image are first matched to images in the database and labels are assigned to those objects according to matching scores. 

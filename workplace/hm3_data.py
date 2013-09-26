@@ -1,12 +1,13 @@
 from scipy import linalg, matrix
 from numpy import *
+#from cvxopt import matrix
 
 
 
 def nullspace(A, atol=1e-13, rtol=0):
      A = np.atleast_2d(A)
      u, s, vh = svd(A)
-     tol = max(atol, rtol * s[0])
+     tol = np.max(atol, rtol * s[0])
      nnz = (s >= tol).sum()
      ns = vh[nnz:].conj().T
      return ns
@@ -81,7 +82,8 @@ print val_ls_reg
 
 
 #solution 4 chebyshev approximation
-from cvxpy import Minimize, normInf
+from cvxpy import Minimize, normInf, Variable, Problem, inv_pos
+
 x=Variable (m,1)
 objective = Minimize(normInf(matrix(A)*x-ones((n,1))))
 constraints =[x>=0,x<=1]
